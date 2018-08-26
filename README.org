@@ -1,0 +1,10 @@
+#+TITLE: Multi-threaded WebServer
+
+This project followed the guidelines of the [[https://doc.rust-lang.org/book/2018-edition/ch20-00-final-project-a-web-server.html][2018 Rust Book]] to develop a
+multithreaded webserver. It just serves two endpoints:
+- GET /
+- GET /sleep
+- Other requests requests 404 with an error page
+
+The second endpoint sleeps for 5 seconds, but the user can still open pages and
+the requests will be successful, with the caveat that there are only 4 threads.
