@@ -56,12 +56,12 @@ impl ThreadPool {
 
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
     pub fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || {
+        let thread = Some(thread::spawn(move || {
             loop {
                 let job = receiver.lock().unwrap().recv().unwrap();
 
@@ -69,7 +69,19 @@ impl Worker {
 
                 job.call_box();
             }
-        });
+        }));
         Worker { id, thread }
+    }
+}
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in &mut self.workers {
+            println!("Shutting own worker {}", worker.id);
+
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
     }
 }
